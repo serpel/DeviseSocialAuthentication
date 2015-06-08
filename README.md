@@ -10,7 +10,7 @@ cd fb_auth
 ```
 
 ### Step 2 - Add the Required Gems to the Gemfile
-edit this file ~/fb_auth/GemFile
+edit this file `~/fb_auth/GemFile`.
 
 ```ruby
 gem 'devise'
@@ -28,7 +28,7 @@ rails g scaffold Product name:string price:integer description:text
 rake db:migrate
 ```
 
-Edit ~/fb_auth/config/routes.rb, and add the line root 'products#index'
+Edit `~/fb_auth/config/routes.rb`, and add the line root `'products#index'`
 
 ```ruby
 Rails.application.routes.draw do
@@ -46,7 +46,7 @@ rails g migration AddColumnsToUsers provider uid
 rake db:migrate
 ```
 
-Our app now has a basic authentication system, where users can register themselves, and then log in. However, all the pages are still directly accessible. To change this, edit ~/fb_auth/app/controllers/application_controller.rb 
+Our app now has a basic authentication system, where users can register themselves, and then log in. However, all the pages are still directly accessible. To change this, edit `~/fb_auth/app/controllers/application_controller.rb`.
 
 ```ruby
 class ApplicationController < ActionController::Base
@@ -57,7 +57,7 @@ end
 
 ### Step 5 - Update the Devise Initializer
 
-Edit ~/fb_auth/config/initializers/devise.rb to add the client IDs and secrets at the bottom of the file, just before the end line.
+Edit `~/fb_auth/config/initializers/devise.rb` to add the client IDs and secrets at the bottom of the file, just before the end line.
 
 ```ruby
 Devise.setup do |config|
@@ -77,12 +77,12 @@ Devise.setup do |config|
 
   #Add your ID and secret here
   #ID first, secret second
-  config.omniauth :facebook, "db381dc9990be7e3bc42503d0", "5b0824c2722b65d29965f1a1df"
+  config.omniauth :facebook, "11111dc9990be7e3bc42503d0", "111114c2722b65d29965f1a1df"
 end
 ```
 
 ### Step 6 - Update the User Model
-After editing it, your ~/fb_auth/app/models/user.rb should look like this:
+After editing it, your `~/fb_auth/app/models/user.rb` should look like this:
 
 ```ruby
 class User < ActiveRecord::Base
@@ -105,7 +105,7 @@ end
 
 ### Step 7 - Add a Controller to Handle the Callback URLs
 
-First, edit ~/fb_auth/config/routes.rb and update the devise_for line to specify the name of the controller that will be handling the callbacks.
+First, edit `~/fb_auth/config/routes.rb` and update the devise_for line to specify the name of the controller that will be handling the callbacks.
 
 ```ruby
 Rails.application.routes.draw do
@@ -115,13 +115,74 @@ Rails.application.routes.draw do
 end
 ```
 
-### Step 6 - Add this link to login page or whatever you want.
-<%= link_to "Sign in with Facebook", user_omniauth_authorize_path(:facebook) %>
+Then, create a new file `~/rails_apps/myapp/app/controllers/callbacks_controller.rb`.
 
-### For adding others providers you must edit this files:
->~/fb_auth/config/initializers/devise.rb 
->~/fb_auth/app/models/user.rb
->~/fb_auth/app/controllers/callbacks_controller.rb
+Add the following code to it:
+
+```ruby
+class CallbacksController < Devise::OmniauthCallbacksController
+    def facebook
+        @user = User.from_omniauth(request.env["omniauth.auth"])
+        sign_in_and_redirect @user
+    end
+end
+```
+
+### Step 8 - Add this link to login page or whatever you want.
+```
+<%= link_to "Sign in with Facebook", user_omniauth_authorize_path(:facebook) %>
+```
+
+### Note: For adding others providers you must edit this files:
+`~/fb_auth/GemFile`
+`~/fb_auth/config/initializers/devise.rb` 
+`~/fb_auth/app/models/user.rb` 
+`~/fb_auth/app/controllers/callbacks_controller.rb`
+
+If you have used more OAuth providers, you will need a separate method for each of them. The name of the method should match the name of the provider. For example, to add support for Facebook, your method will be defined using *def facebook*.
+
+### Adding Google Authentication Support:
+
+Edit `~/fb_auth/GemFile` and add this line:
+```
+gem 'omniauth-google-oauth2'
+```
+
+Run this rails command
+```ruby
+bundle install
+```
+
+Edit `~/fb_auth/config/initializers/devise.rb` and add this line:
+```
+config.omniauth :google_oauth2, "APP_ID", "APP_SECRET", { access_type: "offline", approval_prompt: "" }
+```
+
+Add new provider editing `~/fb_auth/app/models/user.rb`.
+```
+:omniauth_providers => [:facebook, google_oauth2]
+```
+
+After editing it, your `~/fb_auth/app/controllers/callbacks_controller.rb` should looks like:
+
+```ruby
+class CallbacksController < Devise::OmniauthCallbacksController
+    def facebook
+        @user = User.from_omniauth(request.env["omniauth.auth"])
+        sign_in_and_redirect @user
+    end
+    
+    def google_oauth2
+        @user = User.from_omniauth(request.env["omniauth.auth"])
+        sign_in_and_redirect @user
+    end
+end
+```
+
+Now you can put this link whatever you want:
+```
+<%= link_to "Sign in with Google", user_omniauth_authorize_path(:google_oauth2) %>
+```
 
 ### Support
 
