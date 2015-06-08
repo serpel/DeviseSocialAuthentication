@@ -1,5 +1,5 @@
 # DeviseSocialAuthentication
-Devise authentification with Facebook and Google
+Devise authentification with Facebook and Google tested in rails 4.2.0
 
 ### Step 1 - create our new rails application
 create our working space & our new app
