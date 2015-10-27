@@ -128,9 +128,13 @@ class CallbacksController < Devise::OmniauthCallbacksController
 end
 ```
 
-### Step 8 - Add this link to login page or whatever you want.
+### Step 8 - Add login and sign out links whatever you want.
 ```
-<%= link_to "Sign in with Facebook", user_omniauth_authorize_path(:facebook) %>
+<% if current_user %>
+  <%= link_to "Sign in with Facebook", user_omniauth_authorize_path(:facebook) %>
+<% else %>
+  <%= link_to destroy_user_session_path, :method => :delete  do %>Sign out<%end%>
+<%end%>
 ```
 
 ### Note: For adding others providers you must edit this files:
