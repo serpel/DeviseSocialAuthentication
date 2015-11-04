@@ -130,7 +130,7 @@ end
 
 ### Step 8 - Add login and sign out links whatever you want.
 ```
-<% if current_user %>
+<% if !current_user %>
   <%= link_to "Sign in with Facebook", user_omniauth_authorize_path(:facebook) %>
 <% else %>
   <%= link_to destroy_user_session_path, :method => :delete  do %>Sign out<%end%>
